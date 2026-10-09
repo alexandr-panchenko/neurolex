@@ -48,3 +48,9 @@ Then call `tools/list` and:
 ```
 
 Tools: `schema_get`, `articles_search`, `article_read`, `article_history`, `document_write`, `import_preview`, `import_apply`, `schema_preview`, `schema_apply`. Write arguments use the HTTP envelopes; pass `idempotencyKey` in arguments for retries. Tool errors use `isError:true` and structured JSON in text content. Notifications receive HTTP 202. There is no persistent session or server event stream.
+
+## Embedded assistant, source search and import updates
+
+POST `/api/assistant` accepts an authenticated actor, stable request `id`, up to twelve user/assistant `messages`, configured `provider`, and explicit `allowChanges`, `allowSchema`, `allowPublish` flags. These flags cannot exceed the actor's existing scopes. Tools obtain the current schema and use the same MCP/Service optimistic operations. Responses include `answer`, `provider` and actual action `trace`; provider/tool-budget failures preserve completed traces. No keys are accepted from the browser. POST `/api/sources/search` accepts `{query}` and returns attributed Parallel excerpts. Without configured keys/model IDs these operations remain unavailable; tests with recorded responses are not live-provider evidence.
+
+Import previews now return revision numbers and field-level current/incoming differences. Explicit replacement uses `replaceFields: {articleId: [fieldId]}` plus `expectedRevisions: {articleId: revision}` in the import apply envelope. Without selected replacements, existing author values retain precedence. The server rejects stale replacements. CSV/TSV mapping is performed against the fetched schema, never fixed initial field names. POST `/api/import/mesh` obtains a canonical MeSH descriptor and preferred-concept scope note; it returns a document proposal for normal preview/apply and does not publish.

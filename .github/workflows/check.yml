@@ -1,5 +1,14 @@
-name: Quality checks
-on: [push, pull_request]
+name: Check and deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: neurolex-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -15,3 +24,32 @@ jobs:
       - run: bun run check
         env:
           WRANGLER_SEND_METRICS: 'false'
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.2.5'
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+      - name: Apply reviewed migrations and deploy
+        run: |
+          bun scripts/deploy.ts d1 migrations apply neurolex-preview-data --remote
+          bun scripts/deploy.ts deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DATABASE_ID: ${{ secrets.CLOUDFLARE_DATABASE_ID }}
+          AUTHOR_EMAIL: ${{ secrets.AUTHOR_EMAIL }}
+          WRANGLER_SEND_METRICS: 'false'
+      - name: Check deployment
+        run: curl --fail --retry 3 https://neurolex-preview.sanocks.workers.dev/api/health

@@ -41,7 +41,14 @@ export class Service {
           const valid = validateDocument(snapshot.schema,doc); if (seen.has(valid.id)) throw new DomainError('DUPLICATE',422,'Повтор идентификатора в пакете.'); seen.add(valid.id);
           const existing = snapshot.records[valid.id];
           // Existing author values win on reimport; explicit edits use write with expectedRevision.
-          const merged = existing ? { ...valid,values:{ ...valid.values,...existing.current.values } } : valid;
+          let merged = existing ? { ...valid,values:{ ...valid.values,...existing.current.values } } : valid;
+          const replacements=object(input.replaceFields)?input.replaceFields[valid.id]:undefined;
+          if(existing&&Array.isArray(replacements)&&replacements.length){
+            const expected=object(input.expectedRevisions)?input.expectedRevisions[valid.id]:undefined;
+            if(expected!==existing.revision)throw new DomainError('REVISION_CONFLICT',409,'Статья изменилась после просмотра импорта.',{id:valid.id,currentRevision:existing.revision});
+            if(replacements.some(field=>typeof field!=='string'||!Object.hasOwn(valid.values,field)))throw new DomainError('INVALID_INPUT',422,'Заменять можно только поля из импортируемой статьи.');
+            merged={...merged,values:{...merged.values,...Object.fromEntries(replacements.map(field=>[field,valid.values[field as string]!]))}};
+          }
           const one = writeDocument(snapshot,{ ...actor,origin:'import' },{ document:merged,schemaVersion:input.schemaVersion,expectedRevision:existing?.revision || 0,publish:input.publish === true }); records.push(...one.records); revisions.push(...one.revisions);
         }
         change = { records,revisions,result:{ outcomes:records.map((r) => ({ id:r.id,revision:r.revision,retainedLocalValues:!!snapshot.records[r.id] })) } }; break;
@@ -55,7 +62,7 @@ export class Service {
   async preview(input: unknown) { requireScope(this.actor,'schema'); return migrationPreview(await this.store.snapshot(),input); }
   async importPreview(input: unknown) {
     requireScope(this.actor,'write'); const s = await this.store.snapshot(); if (!object(input) || !Array.isArray(input.documents)) throw new DomainError('INVALID_INPUT',400,'Нужен массив documents.');
-    assertSchema(s,input.schemaVersion);
-    return { outcomes:input.documents.map((raw) => { try { const doc = validateDocument(s.schema,raw); const old = s.records[doc.id]; return { id:doc.id,exists:!!old, retainedLocalFields:old ? Object.keys(old.current.values) : [], incomingFields:Object.keys(doc.values) }; } catch (e) { if (!(e instanceof DomainError)) throw e; return { error:e.code,details:e.details }; } }) };
+    assertSchema(s,input.schemaVersion);if(input.documents.length>100)throw new DomainError('INVALID_INPUT',400,'Импорт принимает до 100 документов.');const seen=new Set<string>();
+    return { outcomes:input.documents.map((raw) => { try { const doc = validateDocument(s.schema,raw);if(seen.has(doc.id))throw new DomainError('DUPLICATE',422,'Повтор идентификатора в пакете.',{id:doc.id});seen.add(doc.id); const old = s.records[doc.id]; return { id:doc.id,exists:!!old,revision:old?.revision||0,retainedLocalFields:old ? Object.keys(old.current.values) : [], incomingFields:Object.keys(doc.values),differences:Object.entries(doc.values).filter(([field,value])=>JSON.stringify(old?.current.values[field])!==JSON.stringify(value)).map(([field,value])=>({field,current:old?.current.values[field]??null,incoming:value})) }; } catch (e) { if (!(e instanceof DomainError)) throw e; return { error:e.code,details:e.details }; } }) };
   }
 }

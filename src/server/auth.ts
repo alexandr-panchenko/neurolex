@@ -3,7 +3,7 @@ import type { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { DomainError, type Actor } from '../domain/model';
 import { digest } from './store';
-export interface Env { DB: D1Database; ASSETS: Fetcher; AUTHOR_EMAIL: string; SITE_NAME: string; AUTHOR_KEY_HASH?: string; ACCESS_TEAM_DOMAIN?: string; ACCESS_AUD?: string }
+export interface Env { DB: D1Database; ASSETS: Fetcher; AUTHOR_EMAIL: string; SITE_NAME: string; AUTHOR_KEY_HASH?: string; ACCESS_TEAM_DOMAIN?: string; ACCESS_AUD?: string; OPENAI_API_KEY?:string; OPENAI_MODEL?:string; GEMINI_API_KEY?:string; GEMINI_MODEL?:string; PARALLEL_API_KEY?:string; CHAT_PROVIDER?:string }
 export const authorScopes = ['read','write','publish','schema','credentials'];
 export function sameOrigin(c: Context<{ Bindings: Env }>) {
   const origin = c.req.header('Origin'); if (origin && origin !== new URL(c.req.url).origin) throw new DomainError('ORIGIN_FORBIDDEN',403,'Запрос с другого сайта запрещён.');

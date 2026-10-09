@@ -4,7 +4,7 @@
 
 The user reviewed the wiki mock, accepted its style, explained the required article/schema/browse interactions, and authorized continued implementation. That review is complete. The delivered increment is a real author-and-agent workflow, not localStorage demo publication.
 
-URL: https://neurolex-preview.sanocks.workers.dev. Current Worker version: `a3c77426-f086-446b-8f50-2bb2aeaa5b2b` (autosave/topic correction below). D1 `neurolex-preview-data` is authoritative. Three public illustrative articles and one private agent verification draft exist. Neurofeedback has a browser-saved draft demonstrating the optional discourse-functions field; its public publication remains the prior revision.
+URL: https://neurolex-preview.sanocks.workers.dev. Current Worker version: `49babdc8-048b-48e6-aa56-615b042582d4` (autosave/topic correction below). D1 `neurolex-preview-data` is authoritative. Three public illustrative articles, a private agent verification draft and a sourced private MeSH draft exist. Neurofeedback has a browser-saved draft demonstrating the optional discourse-functions field; its public publication remains the prior revision.
 
 Implemented: public bilingual/content search and topic browsing; inline term/source references; stable public article HTML without JavaScript; actual JSON-LD/Turtle exports; private owner sessions and scoped revocable agent Bearer credentials; section-based editing; D1 saves, publication isolation, immutable revision history and restoration; article/schema/corpus optimistic conflicts; idempotency; global persisted schema, impact preview and atomic declarative migrations; current-schema driven editor and HTTP/MCP tools; conservative JSON document-bundle imports preserving existing local values. See README.md and docs/ for usage and supported limits.
 
@@ -12,7 +12,7 @@ Author email `the confirmed author email` was explicitly confirmed. Owner-key lo
 
 ## Verification evidence
 
-Local final check: strict TypeScript, zero-warning ESLint, **16 tests / 69 assertions**, Vite production build and Wrangler Worker dry run all passed. Tests cover actual SQLite transaction rollback, stale revisions/schema/corpus, idempotency, migration failure, private/public boundaries, scoped/expired/revoked credentials, forged email and cross-origin auth, conservative reimport, safe rich-text/citations, generated JSON Schema parity, RDF graph equivalence and positive/negative SHACL validation. CI is configured but has not run on GitHub.
+Local final check: strict TypeScript, zero-warning ESLint, **16 tests / 69 assertions**, Vite production build and Wrangler Worker dry run all passed. Tests cover actual SQLite transaction rollback, stale revisions/schema/corpus, idempotency, migration failure, private/public boundaries, scoped/expired/revoked credentials, forged email and cross-origin auth, conservative reimport, safe rich-text/citations, generated JSON Schema parity, RDF graph equivalence and positive/negative SHACL validation. These were the initial local checks; subsequent GitHub and pilot checks are recorded below.
 
 Live Cloudflare checks passed: author sign-in; temporary delegated credential; MCP schema discovery and actual private document writes; stale revision rejection; optional-field schema migration v1 → v2; stale schema rejection; competing agent updates; draft exclusion from public search/exports; publication of a sample and persisted history; agent revocation. The temporary credential was revoked. Script: `scripts/verify-live.py`; running it mutates test articles and is not a harmless health check.
 
@@ -22,17 +22,17 @@ Final deployed read checks passed: exactly three public articles, no private ver
 
 Browser checks: actual owner login, in-place rich editor and citation controls, saved new schema field, reload persistence, history with before/after values, restoration of an older version into the editor without overwriting server content. Responsive reading at configured width 390 showed no horizontal overflow; viewport reset. Final page screenshot: docs/working-wiki.jpg. No console warnings/errors observed on the final article. A later automation interaction stalled in a confirmation dialog; a fresh tab verified final rendering and responsive layout. History interaction was verified on the preceding deployment; the final localized labels/removal-diff change passed local checks, without claiming a second successful browser history interaction.
 
-GitHub API access was verified as the repository owner. The workspace has no initialized Git repository or selected remote. No remote was invented and no commits/push/CI run are claimed. Cloudflare OAuth login and deployments are verified. Artifacts Git read/write/conflict/grouped update/history were live-probed and cleaned up. D1 was selected for straightforward Worker mutations; no paid plan was enabled.
+GitHub API access was verified as the repository owner. At initial delivery the workspace had no repository identity; the later authorized public repository and CI are recorded below. Cloudflare OAuth login and deployments are verified. Artifacts Git read/write/conflict/grouped update/history were live-probed and cleaned up. D1 was selected for straightforward Worker mutations; no paid plan was enabled.
 
 ## Next increments and actual dependencies
 
-1. Configure Cloudflare Access for only `/auth/access`, permit the confirmed author email, supply team domain and audience, and live-test email-code login. Owner-key login is the deployed interim path. Instructions: docs/OPERATIONS.md.
-2. Add tabular CSV field mapping and a verified small InterLex adapter, checking live reuse conditions and preserving IDs/licenses. JSON bundle import/export is already working; no real collection or external terminology data is currently imported.
-3. Improve reimport baseline differences and explicit field-level update proposals. Current conservative policy retains every existing local field, adds absent incoming fields, and requires deliberate revision-checked edits for replacement.
-4. Extend reusable concept/episode/example identifiers and provenance/status modeling as real cards justify it. Current standards support is a constrained profile, documented in docs/SEMANTIC-PROFILE.md, not full original NeuroLex compatibility.
-5. Establish the GitHub repository identity, run CI, and test a full database backup/restoration drill. No automatic backup drill is claimed.
-6. Optional embedded Gemini/OpenAI and Parallel integrations require selected providers and credentials. Search and external-agent editing already work without them.
-7. Final name/domain, corpus license and production publication remain user decisions. Existing authorization covers this test deployment.
+1. Provision the requested private Cloudflare API token, enable and live-test GitHub main deployments, and configure/live-test allowlisted Access email login. Public repository and successful CI are established; the deployment workflow and provisioning script are checked in. Owner-key login remains usable.
+2. Provision OpenAI or Gemini keys with explicit model IDs and Parallel credentials, then run bounded live chat/tool/source-research checks. Both provider adapters, agent UI, scoped shared operations and Parallel are implemented and fixture-tested.
+3. Enter/import the actual cards arriving tomorrow and use the private feedback path. CSV mapping, import differences/revision-checked field replacement and actual sourced MeSH draft import are available.
+4. Verify InterLex API access and reuse mapping if it adds value beyond the working MeSH adapter. No InterLex import is claimed.
+5. Extend shared concept/episode identities or imported-baseline reconciliation as actual cards justify these richer semantics; do not claim full original NeuroLex compatibility.
+6. Final name/domain, corpus license and production publication remain user decisions. Existing authorization covers the test site, public source repository and automatic test deployments.
+
 
 The next user scenario is meaningful authoring: edit a section, save/reload a draft, inspect its history, and explicitly publish it when ready. The global schema is outside the article tabs and affects all articles; article fields are their displayed sections, not a second disconnected document.
 
@@ -65,3 +65,21 @@ Remaining implementation: Access email login configuration/live check; CSV field
 The user authorized a public GitHub repository and automatic deployments, and requested all technically actionable preparation before real cards arrive tomorrow. Embedded OpenAI/Gemini agent chat and Parallel Search are now active scope, not deferred optional work. Prepare current-schema tools, scoped writes, sourced answers and bounded server-side calls. Live integrations require provider credentials; do not claim them from fixtures.
 
 Deliver public repository/CI/deploy, CSV mapping and import differences, a verified external data adapter/import, backup restoration evidence, practical author access and feedback path, and the embedded agent/search integration. Preserve public read access and private drafts. Do not add development or infrastructure notes to product UI.
+
+## Pilot preparation evidence — 9 October 2026
+
+Public repository established: https://github.com/alexandr-panchenko/neurolex. Initial commit `1a6a22d` passed GitHub Actions. Source configuration is redacted; private local Cloudflare settings and all credentials/backups are ignored. Checked-in main deployment applies reviewed SQL migrations then deploys only after checks succeed; activation/live automatic deployment requires the requested account-restricted API token, not local OAuth copying.
+
+Implemented CSV/TSV parsing/header mapping against current schema, human-readable import differences, explicit per-field replacement guarded by preview revisions, and duplicate/shape validation. Browser upload preview matched term/equivalent/definition and displayed the existing MeSH definition with an unchecked replacement option.
+
+NLM MeSH descriptor/preferred-concept adapter was live-tested on Cloudflare. `magnetoencephalography` imported as a sourced private draft, carrying canonical descriptor/concept IDs, retrieved/updated metadata and NLM attribution/terms. Public articles remain exactly three. The initial Worker failure was the unsupported fetch redirect:error option; manual status checking fixed it. This is real MeSH import, not an InterLex compatibility claim.
+
+OpenAI Responses and Gemini Interactions tool loops, Parallel v1 source search, server-only secrets, per-conversation scoped actions, idempotent chat requests, provider failure traces and bounded requests are implemented. Recorded-response tests exercise both provider loops, blocked model writes, retry reuse and source evidence. No provider key/model ID or Parallel key is configured; no live-model or live Parallel success is claimed. Author feedback submission and private owner inbox are implemented; HTTP save/read was verified.
+
+Full live D1 backup restored in separate private SQLite on 9 October: integrity_check=ok, schema version 3, four articles and 25 revisions at the export snapshot. All article/revision JSON parsed; operational tables and credential hashes restored privately. This is a local full-export recovery rehearsal, not remote cutover or scheduled backup.
+
+Final local pilot checks: 31 tests / 125 assertions, strict TypeScript, zero-warning ESLint, Vite and actual Worker dry run passed. Remaining external dependencies: Cloudflare deployment/Access API token and Access configuration/live OTP; selected provider keys plus explicit model IDs; Parallel key. Real cards arrive tomorrow and do not block the delivered preparation. Live automatic deployment and provider calls must be verified after provisioning.
+
+Final pilot deployment: `49babdc8-048b-48e6-aa56-615b042582d4`. Provider fixture tests also verify actual shared-domain draft writes, unchanged public publication, and embedded-agent revision provenance. Pending credentials are explicit above.
+
+Post-import backup restoration also passed: five articles, 26 revisions and one private feedback record; schema version 3 and integrity_check=ok. Browser directly opened the private imported article, displayed the English scope note, author-supplied Russian equivalent and actual MeSH source/terms. Screenshot: docs/mesh-import.jpg.

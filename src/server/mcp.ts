@@ -14,13 +14,14 @@ const descriptors = [
 function inputSchema(name: string) {
   const properties: Record<string, unknown> = { idempotencyKey: { type: 'string' } };
   let required: string[] = [];
-  if (name === 'articles_search') Object.assign(properties,{ q:{type:'string'},category:{type:'string'} });
+  if (name === 'articles_search') Object.assign(properties,{ q:{type:'string'},category:{type:'string'},privateView:{type:'boolean'} });
   if (['article_read','article_history'].includes(name)) { Object.assign(properties,{ id:{type:'string'},privateView:{type:'boolean'} });required=['id']; }
   if (name === 'document_write') { Object.assign(properties,{ document:{type:'object',additionalProperties:true},schemaVersion:{type:'integer'},expectedRevision:{type:'integer'},publish:{type:'boolean'} });required=['document','schemaVersion','expectedRevision']; }
   if (name.startsWith('import_')) { Object.assign(properties,{ documents:{type:'array',items:{type:'object',additionalProperties:true}},schemaVersion:{type:'integer'},publish:{type:'boolean'} });required=['documents','schemaVersion']; }
   if (name.startsWith('schema_') && name !== 'schema_get') { Object.assign(properties,{ schema:{type:'object',additionalProperties:true},expectedSchemaVersion:{type:'integer'},expectedCorpusVersion:{type:'integer'},transformations:{type:'array',items:{type:'object',additionalProperties:true}} });required=['schema','expectedSchemaVersion'];if(name==='schema_apply')required.push('expectedCorpusVersion'); }
   return { type:'object',properties,required,additionalProperties:true };
 }
+export function toolDefinitions(actor:Actor|null){return descriptors.filter(d=>!d[2]||actor?.scopes.includes(d[2])).map(([name,description])=>({name,description,inputSchema:inputSchema(name)}));}
 export async function mcp(service: Service, actor: Actor | null, body: unknown) {
   if (!object(body) || body.jsonrpc !== '2.0' || typeof body.method !== 'string') return { jsonrpc:'2.0',id:null,error:{ code:-32600,message:'Invalid JSON-RPC request' } };
   if (body.id === undefined) return null;
@@ -34,7 +35,7 @@ export async function mcp(service: Service, actor: Actor | null, body: unknown) 
   try {
     switch (body.params.name) {
       case 'schema_get': result = await service.readSchema(); break;
-      case 'articles_search': result = await service.list(String(input.q || ''),String(input.category || '')); break;
+      case 'articles_search': result = await service.list(String(input.q || ''),String(input.category || ''),input.privateView===true); break;
       case 'article_read': result = await service.read(String(input.id || ''),input.privateView === true); break;
       case 'article_history': result = await service.history(String(input.id || '')); break;
       case 'document_write': result = await service.mutate('write',input,typeof input.idempotencyKey === 'string' ? input.idempotencyKey : undefined); break;

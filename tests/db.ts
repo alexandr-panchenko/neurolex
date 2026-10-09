@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { readFileSync } from 'node:fs';
 export function database(){
- const sql=new Database(':memory:');sql.exec(readFileSync('migrations/0001.sql','utf8'));sql.exec(readFileSync('migrations/0002_samples.sql','utf8'));
+ const sql=new Database(':memory:');sql.exec(readFileSync('migrations/0001.sql','utf8'));sql.exec(readFileSync('migrations/0002_samples.sql','utf8'));sql.exec(readFileSync('migrations/0004_pilot.sql','utf8'));
  const wrap=(query:string,args:unknown[]=[])=>({
   bind:(...values:unknown[])=>wrap(query,values),
   first:async()=>sql.query(query).get(...args as (string|number|null)[]),
