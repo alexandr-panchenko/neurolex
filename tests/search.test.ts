@@ -8,5 +8,6 @@ test('search finds English, Russian and abbreviation labels, with exact labels f
 });
 test('rich text structure and supported marks survive serialization', () => {
   const input = { type: 'doc', content: [{ type: 'blockquote', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Analysis', marks: [{ type: 'link', attrs: { href: 'https://example.org', title: null } }, { type: 'strong' }] }] }] }] };
-  expect(richSchema.nodeFromJSON(input).toJSON()).toEqual(input);
+  expect(richSchema.nodeFromJSON(input).toJSON()).toEqual({...input,attrs:{language:null}});
+  expect(richSchema.nodeFromJSON({...input,attrs:{language:'en'}}).toJSON()).toEqual({...input,attrs:{language:'en'}});
 });

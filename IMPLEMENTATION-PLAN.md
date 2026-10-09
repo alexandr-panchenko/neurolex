@@ -29,7 +29,7 @@ GitHub API access was verified as the repository owner. At initial delivery the 
 1. Provision the requested private Cloudflare API token, enable and live-test GitHub main deployments, and configure/live-test allowlisted Access email login. Public repository and successful CI are established; the deployment workflow and provisioning script are checked in. Owner-key login remains usable.
 2. Provision OpenAI or Gemini keys with explicit model IDs and Parallel credentials, then run bounded live chat/tool/source-research checks. Both provider adapters, agent UI, scoped shared operations and Parallel are implemented and fixture-tested.
 3. Enter/import the actual cards arriving tomorrow and use the private feedback path. CSV mapping, import differences/revision-checked field replacement and actual sourced MeSH draft import are available.
-4. Verify InterLex API access and reuse mapping if it adds value beyond the working MeSH adapter. No InterLex import is claimed.
+4. Targeted NeuroLex/NIFSTD snapshot import with explicit InterLex identifiers is now live-verified. A full/current authenticated InterLex API and arbitrary ontology imports remain outside the supported adapter.
 5. Extend shared concept/episode identities or imported-baseline reconciliation as actual cards justify these richer semantics; do not claim full original NeuroLex compatibility.
 6. Final name/domain, corpus license and production publication remain user decisions. Existing authorization covers the test site, public source repository and automatic test deployments.
 
@@ -83,3 +83,13 @@ Final local pilot checks: 31 tests / 125 assertions, strict TypeScript, zero-war
 Final pilot deployment: `49babdc8-048b-48e6-aa56-615b042582d4`. Provider fixture tests also verify actual shared-domain draft writes, unchanged public publication, and embedded-agent revision provenance. Pending credentials are explicit above.
 
 Post-import backup restoration also passed: five articles, 26 revisions and one private feedback record; schema version 3 and integrity_check=ok. Browser directly opened the private imported article, displayed the English scope note, author-supplied Russian equivalent and actual MeSH source/terms. Screenshot: docs/mesh-import.jpg.
+
+## Standards audit and original NeuroLex import — 9 October 2026
+
+Reviewed OntoLex/Lexicog primary specifications; documented the implemented profile and concrete extension boundaries in docs/SEMANTIC-PROFILE.md. Corrected English imported rich-text language, xsd:date output/SHACL alignment and explicit one-owner/one-reference lexical senses. Existing discourse examples additionally export via lexicog:UsageExample/rdf:value and matching language-specific sense links. Original source correspondence exports as seeAlso/wasDerivedFrom rather than inferred exactMatch.
+
+Added authenticated NeuroLex/InterLex proposal endpoint and browser source selection. Official public SciCrunch NIF-Ontology investigation module and NIFSTD-ILX mappings are pinned to commit e0b6941924a5dabcd62c5cab879e9b8c64571e4a, with CC BY 4.0 repository attribution and retained original citations. Live Cloudflare retrieval by ilx_0107518 resolved nlx_inv_090919, Tract tracing assay; preview/apply produced private draft neurolex-nlx-inv-090919 with unchanged English definition, external IDs, source annotations and importer-supplied Russian equivalent. Public article count remains three. Corrected only the prior MeSH draft language metadata via a normal recorded revision.
+
+35 tests / 144 assertions, types, lint and Worker build passed. Test deployment: 0bd8c1a5-39a6-4b4c-a0c8-bdff63766c10. This is a targeted historic NeuroLex/NIFSTD module import with explicit InterLex mappings, not a complete/current InterLex database or full original field-model reproduction.
+
+Final adapter deployment with concise source attribution: 79128a0f-1057-4f30-99f8-32b4877dbb48. Live JSON-LD/Turtle equality and SHACL passed for all three published articles. Browser verified InterLex lookup, existing-record preview, imported English editor language and the persisted private article; screenshot docs/neurolex-import.jpg. No source definition was fabricated or publicly published.

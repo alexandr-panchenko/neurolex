@@ -18,7 +18,7 @@ export function exportGraph(doc: Document, schema: DictionarySchema, base: strin
   for (const [field,language] of [['term','en'],['equivalent','ru']] as const) {
     const entry = `${base}/id/entry/${doc.id}/${language}`; const form = entry+'/form'; const sense = entry+'/sense'; const label = text(doc.values[field]);
     (article[namespaces.lexicog+'describes'] as Json[]).push(ref(entry));
-    graph.push({ '@id':entry,'@type':namespaces.ontolex+'LexicalEntry',[namespaces.dct+'language']:language,[namespaces.ontolex+'canonicalForm']:ref(form),[namespaces.ontolex+'sense']:ref(sense) }, { '@id':form,'@type':namespaces.ontolex+'Form',[namespaces.ontolex+'writtenRep']:{ '@value':label,'@language':language } }, { '@id':sense,'@type':namespaces.ontolex+'LexicalSense',[namespaces.ontolex+'reference']:ref(concept) });
+    graph.push({ '@id':entry,'@type':namespaces.ontolex+'LexicalEntry',[namespaces.dct+'language']:language,[namespaces.ontolex+'canonicalForm']:ref(form),[namespaces.ontolex+'sense']:ref(sense) }, { '@id':form,'@type':namespaces.ontolex+'Form',[namespaces.ontolex+'writtenRep']:{ '@value':label,'@language':language } }, { '@id':sense,'@type':namespaces.ontolex+'LexicalSense',[namespaces.ontolex+'reference']:ref(concept),[namespaces.ontolex+'isSenseOf']:ref(entry) });
     const key = namespaces.skos+'prefLabel'; const labels = conceptNode[key] as Json[] | undefined; conceptNode[key] = [...(labels || []),{ '@value':label,'@language':language }];
   }
   const abbreviation = text(doc.values.abbreviation);
@@ -28,10 +28,21 @@ export function exportGraph(doc: Document, schema: DictionarySchema, base: strin
       if (typeof value.id === 'string') id = id.slice(0,id.lastIndexOf('/'))+'/'+encodeURIComponent(value.id);
       const node: Node = { '@id':id }; graph.push(node);
       for (const child of f.fields || []) { const v = value[child.id]; if (v !== undefined) node[child.predicate] = child.multiple && Array.isArray(v) ? v.map((item,i) => convert(child,item,`${id}/${child.id}/${i}`)) : convert(child,v,`${id}/${child.id}`,child.id === 'excerpt' && typeof value.language === 'string' ? value.language : language); }
+      if (f.predicate.endsWith('#usageExample') && text(value.excerpt)) {
+        node['@type']=namespaces.lexicog+'UsageExample';
+        const excerpt=value.excerpt;const attrs=excerpt&&typeof excerpt==='object'&&!Array.isArray(excerpt)?excerpt.attrs:null;
+        const exampleLanguage=attrs&&typeof attrs==='object'&&!Array.isArray(attrs)&&typeof attrs.language==='string'?attrs.language:typeof value.language==='string'?value.language:language;
+        node[namespaces.rdf+'value']={'@value':text(excerpt),'@language':exampleLanguage};
+        const sense=graph.find(n=>n['@id']===`${base}/id/entry/${doc.id}/${exampleLanguage}/sense`);
+        if(sense){const key=namespaces.lexicog+'usageExample';sense[key]=[...((sense[key] as Json[]|undefined)||[]),ref(id)];}
+      }
       return ref(id);
     }
     if (f.type === 'reference' && typeof value === 'string') return ref(/^https?:/.test(value) ? value : `${base}/id/concept/${value}`);
-    return f.type === 'richText' ? { '@value':text(value),'@language':language } : value;
+    if (f.type === 'date') return { '@value':String(value),'@type':namespaces.xsd+'date' };
+    const attrs = value && typeof value === 'object' && !Array.isArray(value) ? value.attrs : null;
+    const explicitLanguage = attrs && typeof attrs === 'object' && !Array.isArray(attrs) && typeof attrs.language === 'string' ? attrs.language : language;
+    return f.type === 'richText' ? { '@value':text(value),'@language':explicitLanguage } : value;
   }
   for (const f of schema.fields) {
     if (['term','equivalent','abbreviation','externalMappings'].includes(f.id)) continue;
@@ -40,6 +51,12 @@ export function exportGraph(doc: Document, schema: DictionarySchema, base: strin
     target[f.predicate] = f.multiple && Array.isArray(value) ? value.map((v,i) => convert(f,v,`${root}/${f.id}/${i}`)) : convert(f,value,`${root}/${f.id}`);
   }
   if (Array.isArray(doc.values.externalMappings)) for (const mapping of doc.values.externalMappings) if (mapping && typeof mapping === 'object' && !Array.isArray(mapping) && typeof mapping.url === 'string' && ['exactMatch','closeMatch','relatedMatch'].includes(String(mapping.relation))) { const predicate = namespaces.skos+String(mapping.relation); const old = conceptNode[predicate] as Json[] | undefined; conceptNode[predicate] = [...(old || []),ref(mapping.url)]; }
+  const external=doc.values.externalRecord;
+  if(external&&typeof external==='object'&&!Array.isArray(external)){
+    const urls=[external.source,...(Array.isArray(external.interlex)?external.interlex:[])].filter((v):v is string=>typeof v==='string'&&/^https?:\/\/[^\s]+$/.test(v));
+    if(urls.length)conceptNode[namespaces.rdfs+'seeAlso']=urls.map(ref);
+    if(typeof external.moduleUrl==='string'&&/^https?:\/\/[^\s]+$/.test(external.moduleUrl))article[namespaces.prov+'wasDerivedFrom']=ref(external.moduleUrl);
+  }
   article[`${base}/vocabulary#schemaVersion`] = doc.schemaVersion;
   return { '@context':{ ...namespaces }, '@graph':graph };
 }
@@ -48,7 +65,7 @@ export async function turtle(doc: Document, schema: DictionarySchema, base: stri
   function term(value: Json) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if (typeof value['@id'] === 'string') return namedNode(value['@id']);
-      if (typeof value['@value'] === 'string') return literal(value['@value'],typeof value['@language'] === 'string' ? value['@language'] : '');
+      if (typeof value['@value'] === 'string') return literal(value['@value'],typeof value['@language'] === 'string' ? value['@language'] : typeof value['@type'] === 'string' ? namedNode(value['@type']) : '');
     }
     if (typeof value === 'number') return literal(String(value),namedNode(namespaces.xsd+(Number.isInteger(value) ? 'integer' : 'double')));
     if (typeof value === 'boolean') return literal(String(value),namedNode(namespaces.xsd+'boolean'));

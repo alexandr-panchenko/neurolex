@@ -5,7 +5,7 @@ export { initialSchema };
 function fieldShape(f: Field): Record<string, unknown> {
   let shape: Record<string, unknown>;
   switch (f.type) {
-    case 'richText': shape = { type: 'object', required: ['type', 'content'], properties: { type: { const: 'doc' }, content: { type: 'array' } } }; break;
+    case 'richText': shape = { type: 'object', required: ['type', 'content'], properties: { type: { const: 'doc' }, content: { type: 'array' }, attrs: { type: 'object', properties: { language: { anyOf: [{type:'null'},{type:'string',pattern:'^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$'}] } } } } }; break;
     case 'object': shape = { type: 'object', properties: Object.fromEntries((f.fields || []).map((c) => [c.id, fieldShape(c)])), required: (f.fields || []).filter((c) => c.required).map((c) => c.id), additionalProperties: true }; break;
     case 'enum': shape = { type: 'string', enum: f.options }; break;
     case 'date': shape = { type: 'string', format: 'date' }; break;
@@ -71,6 +71,7 @@ export function validateDocument(schema: DictionarySchema, input: unknown): Docu
       for (const [i, item] of items.entries()) {
         const at = `${path}/${f.id}${f.multiple ? '/' + i : ''}`;
         if (f.type === 'richText') {
+          if(object(item)&&object(item.attrs)&&item.attrs.language!==undefined&&item.attrs.language!==null&&(typeof item.attrs.language!=='string'||!/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(item.attrs.language)))invalid(at+'/attrs/language',f.label);
           try { const node = richSchema.nodeFromJSON(item); node.check(); if (f.required && !node.textContent.trim()) throw new Error(); }
           catch { throw new DomainError('VALIDATION', 422, 'Некорректный форматированный текст.', [{ instancePath: at }]); }
           const visit = (value: unknown): void => { if (object(value)) { if (value.type === 'image') throw new DomainError('VALIDATION', 422, 'Изображения не входят в поддерживаемый формат статьи.', [{ instancePath: at }]); if (value.type === 'link' && object(value.attrs) && !/^https?:\/\//.test(String(value.attrs.href))) throw new DomainError('VALIDATION', 422, 'Разрешены только безопасные HTTP(S)-ссылки.', [{ instancePath: at }]); for (const v of Object.values(value)) visit(v); } else if (Array.isArray(value)) value.forEach(visit); }; visit(item);

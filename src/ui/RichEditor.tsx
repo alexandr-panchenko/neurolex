@@ -24,6 +24,7 @@ export function RichEditor({ value, onChange, terms = [], sources = [], label = 
     return () => { view.destroy(); editor.current = null; };
   }, [label]);
   return <div className="rich-editor"><div className="toolbar" aria-label="Форматирование">
+    <select aria-label={'Язык: '+label} value={value.attrs?.language||''} onChange={e=>{const v=editor.current;if(v){v.dispatch(v.state.tr.setDocAttribute('language',e.target.value||null));}}}><option value="">Язык раздела</option><option value="ru">Русский</option><option value="en">Английский</option></select>
     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { const v = editor.current; if (v) { toggleMark(richSchema.marks.strong!)(v.state, v.dispatch); v.focus(); } }}><strong>Жирный</strong></button>
     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { const v = editor.current; if (v) { toggleMark(richSchema.marks.em!)(v.state, v.dispatch); v.focus(); } }}><em>Курсив</em></button>
     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { const v = editor.current; if (v) { wrapIn(richSchema.nodes.blockquote!)(v.state, v.dispatch); v.focus(); } }}>Цитата</button>
