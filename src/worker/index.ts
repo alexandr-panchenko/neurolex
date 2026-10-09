@@ -6,6 +6,7 @@ import { digest, Store } from '../server/store';
 import { accessLogin, authenticate, authorSession, issueCredential, sameOrigin, type Env } from '../server/auth';
 import { Service } from '../server/service';
 import { mcp } from '../server/mcp';
+import { importTemplate } from '../domain/import-template';
 import { helpHtml } from '../server/help';
 import { articleHtml } from '../server/html';
 import { shacl } from '../domain/shacl';
@@ -31,6 +32,7 @@ app.post('/api/sources/search',async(c)=>{const actor=await authenticate(c);requ
 app.post('/api/feedback',async(c)=>{const actor=await authenticate(c);requireScope(actor,'read');const input=await body(c);if(!object(input)||typeof input.message!=='string'||!input.message.trim()||input.message.length>5000||typeof input.page!=='string'||!input.page.startsWith('/')||input.page.length>300)throw new DomainError('INVALID_INPUT',422,'Напишите сообщение до 5000 символов.');await c.env.DB.prepare('INSERT INTO feedback(id,actor,page,message,created_at) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),actor.id,input.page,input.message,new Date().toISOString()).run();return c.json({saved:true},201);});
 app.get('/api/feedback',async(c)=>{const actor=await authenticate(c);requireScope(actor,'credentials');return c.json((await c.env.DB.prepare('SELECT * FROM feedback ORDER BY created_at DESC LIMIT 100').all()).results);});
 app.post('/api/import/mesh',async(c)=>{const svc=await service(c);requireScope(svc.actor,'write');const input=await body(c);if(!object(input)||typeof input.id!=='string'||typeof input.equivalent!=='string')throw new DomainError('INVALID_INPUT',422,'Укажите MeSH ID и русский эквивалент.');try{const record=await meshRecord(input.id);const schema=(await svc.readSchema()).schema;const document=meshDocument(record,input.equivalent,schema);return c.json({record,document});}catch(e){if(e instanceof DomainError)throw e;throw new DomainError('SOURCE_UNAVAILABLE',502,'Не удалось получить запись MeSH.',{reason:e instanceof Error?e.message.slice(0,200):'unknown'});}});
+app.get('/api/import/template',async(c)=>{const svc=await service(c);requireScope(svc.actor,'write');const format=c.req.query('format')==='csv'?'csv':'json';return c.text(importTemplate((await svc.readSchema()).schema,format),200,{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json; charset=utf-8','Content-Disposition':'attachment; filename="dictionary-template.'+format+'"','Cache-Control':'no-store'});});
 app.post('/api/import/interlex',async(c)=>{const svc=await service(c);requireScope(svc.actor,'write');const input=await body(c);if(!object(input)||typeof input.id!=='string'||typeof input.equivalent!=='string')throw new DomainError('INVALID_INPUT',422,'Укажите NeuroLex / InterLex ID и русский эквивалент.');const record=await interlexRecord(input.id);return c.json({record,document:interlexDocument(record,input.equivalent,(await svc.readSchema()).schema)});});
 app.get('/api/schema',async (c) => c.json(await (await service(c)).readSchema()));
 app.get('/api/articles',async (c) => c.json(await (await service(c)).list(c.req.query('q'),c.req.query('category'),c.req.query('private')==='1')));

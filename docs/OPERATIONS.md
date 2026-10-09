@@ -47,3 +47,19 @@ Import CSV/TSV with header mapping to current fields, or the documented JSON bun
 NLM MeSH retrieval uses only canonical descriptor/concept endpoints; it preserves source ID, concept URL, retrieval date, descriptor last-update and NLM attribution/terms. Russian equivalents are author-supplied. MeSH does not supply podcast examples. Terms: https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html. InterLex requires separately verified access and mapping and is not claimed by this adapter.
 
 Signed-in users submit contextual feedback through the article. Feedback stays private in D1 and the owner reads it in the feedback view or GET `/api/feedback`.
+
+## Selected assistant model and private provisioning
+
+The author selected OpenAI GPT-6 Luna (`gpt-6-luna`), documented at https://developers.openai.com/api/docs/models/gpt-6-luna. It supports Responses API function calling. The selection does not establish account entitlement or a live successful call; keys are still required. `.env.example` records the selection without credentials.
+
+Create a private file outside the repository, for example `~/.config/neurolex/services.env`, with mode 0600 and these entries:
+
+```dotenv
+OPENAI_API_KEY=your-private-key
+OPENAI_MODEL=gpt-6-luna
+CHAT_PROVIDER=openai
+```
+
+Give the local implementation agent only that file path. The provisioning script sends permitted values to Worker secrets without printing the key. Never paste credentials into chat, browser messages or public Git. After provisioning, perform a bounded read-only tool call and then a draft edit to verify real model/tool behavior. Parallel needs its separate PARALLEL_API_KEY for external research.
+
+External clients share the same dictionary protocol: stateless Streamable HTTP MCP at `/mcp`, with `Authorization: Bearer <dictionary credential>`. Client differences concern where the URL/header or secret environment is configured, not dictionary permissions or operations. This dictionary credential is distinct from the OpenAI key and does not purchase model access. Use the HTTP API when a client's MCP transport cannot supply the required header; browser OAuth discovery is not currently provided.

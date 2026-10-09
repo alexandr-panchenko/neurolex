@@ -176,3 +176,12 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 14px; background:
 .help-skip { position: absolute; left: 16px; top: -100px; background: white; padding: 12px; z-index: 10; }
 .help-skip:focus { top: 12px; }
 @media (max-width: 800px) { .help-layout { display: flex; flex-direction: column; gap: 24px; padding: 28px 20px; } .help-navigation { position: static; } .help-document h1 { font-size: 2.1rem; } .help-document h2 { font-size: 1.6rem; } .help-header { gap: 16px; flex-wrap: wrap; padding: 24px 20px; } }
+.schema-scroll { overflow-x: auto; }
+.schema-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+.schema-table th, .schema-table td { text-align:left; vertical-align:top; padding:10px 8px; border-bottom:1px solid var(--color-line); }
+.schema-table input:not([type=checkbox]), .schema-table select, .schema-table textarea { width:100%; min-width:90px; padding:6px; border:1px solid var(--color-line); background:white; }
+.schema-table small, .schema-table td > label { display:block; margin:4px 0; }
+.schema-table details { margin:6px 0; }
+.schema-table td:last-child { white-space:nowrap; }
+.schema-table button { border:1px solid var(--color-line); background:white; color:var(--color-link); padding:4px 8px; margin:2px; }
+@media (min-width: 1100px) { .layout:has(.schema-scroll) { grid-template-columns:236px minmax(0, 1fr); } }

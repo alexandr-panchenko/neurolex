@@ -116,7 +116,7 @@ In History, choose a revision to compare with its predecessor. The whole documen
 
 ## Importing CSV, TSV and JSON cards
 
-Open Import and select a file. Map CSV/TSV columns to current schema fields. Unmapped columns are skipped. English term, Russian equivalent and definition must map to required fields. If no identifier is supplied, one is derived from the English title.
+Open Import, download a current-schema CSV or JSON template, fill it, then select the file. Map CSV/TSV columns to current schema fields. Unmapped columns are skipped. English term, Russian equivalent and definition must map to required fields. If no identifier is supplied, one is derived from the English title.
 
 Each row is a card. In CSV, enclose text containing commas or line breaks in double quotes and double any embedded quotation marks. Use semicolons for repeated simple values. Nested groups such as sources and examples use JSON arrays.
 
@@ -137,7 +137,7 @@ tract tracing assay,исследование трассировки нервны
 
 ## Importing NeuroLex / InterLex and MeSH
 
-In Import, expand “Получить статью из внешнего словаря”, choose a source, and enter its identifier and a Russian equivalent. Select “Получить и проверить”, then “Проверить импорт” and review the proposal before saving.
+In Import, use the visible external dictionary section, choose a source, and enter its identifier and a Russian equivalent. Select “Получить и проверить”, then “Проверить импорт” and review the proposal before saving.
 
 NeuroLex / InterLex supports the public NeuroLex/NIFSTD investigation module with explicit InterLex mappings. For example, nlx_inv_090919 and ilx_0107518 identify Tract tracing assay. This is a historic module; not every current InterLex ID is present. Records lacking explicit definitions are not automatically imported.
 
@@ -155,7 +155,7 @@ Similar names do not automatically establish equivalence to an existing local ar
 
 Add an optional field with an identifier, label, type and display section. It becomes available in every article editor and appears when populated. Required bilingual titles and definition remain the card foundation.
 
-Select “Проверить влияние” (Check impact) and review affected articles and errors. Apply after successful validation. Renames, removals and type changes need explicit transformations. If the dictionary changes after preview, preview again.
+Use ↑ and ↓ in the schema table to reorder content fields; core title elements retain a fixed layout. Sections follow their first field. Semantics settings edit description, property URI and article/concept target. Select “Проверить влияние” (Check impact) and review affected articles and errors. Apply after successful validation. Renames, removals and type changes need explicit transformations. If the dictionary changes after preview, preview again.
 
 Previous revisions remain in history. Coordinate complex transformations with the owner or an external agent with schema permission.
 
