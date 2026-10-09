@@ -6,6 +6,7 @@ import { digest, Store } from '../server/store';
 import { accessLogin, authenticate, authorSession, issueCredential, sameOrigin, type Env } from '../server/auth';
 import { Service } from '../server/service';
 import { mcp } from '../server/mcp';
+import { helpHtml } from '../server/help';
 import { articleHtml } from '../server/html';
 import { shacl } from '../domain/shacl';
 import { assistant, assistantConfig, parallelSearch, quota } from '../server/assistant';
@@ -53,8 +54,9 @@ app.get('/id/:kind/:id', (c) => c.redirect('/article/'+encodeURIComponent(c.req.
 app.get('/id/entry/:id/:language', (c) => c.redirect('/article/'+encodeURIComponent(c.req.param('id')),303));
 app.get('/schema.json',async(c)=>c.json((await new Service(new Store(c.env.DB),null).readSchema()).jsonSchema));
 app.get('/schema.shacl.ttl',async(c)=>c.text(shacl((await new Service(new Store(c.env.DB),null).readSchema()).schema),200,{'Content-Type':'text/turtle; charset=utf-8'}));
-app.get('/sitemap.xml',async(c)=>{const data=await new Service(new Store(c.env.DB),null).list();const base=new URL(c.req.url).origin;return c.text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/',...data.articles.map((a)=>'/article/'+a.id)].map((path)=>'<url><loc>'+base+path+'</loc></url>').join('')+'</urlset>',200,{'Content-Type':'application/xml'});});
+app.get('/sitemap.xml',async(c)=>{const data=await new Service(new Store(c.env.DB),null).list();const base=new URL(c.req.url).origin;return c.text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/','/help',...data.articles.map((a)=>'/article/'+a.id)].map((path)=>'<url><loc>'+base+path+'</loc></url>').join('')+'</urlset>',200,{'Content-Type':'application/xml'});});
 app.get('/robots.txt',(c)=>c.text('User-agent: *\nDisallow: /api/\nDisallow: /auth/\nSitemap: '+new URL(c.req.url).origin+'/sitemap.xml\n'));
+app.get('/help',(c)=>helpHtml(c.env,c.req.raw));
 app.get('/integration',(c)=>c.html('<!doctype html><html lang="ru"><meta charset="utf-8"><title>Интеграция NeuroLex</title><body><h1>HTTP API и MCP</h1><p>Публичное чтение: GET /api/schema, GET /api/articles?q=EEG, GET /api/articles/:id.</p><p>Запись: POST /api/write с Authorization: Bearer и document, schemaVersion, expectedRevision. Текущую схему всегда получайте перед записью. Публикация требует отдельного права publish.</p><p>MCP: POST /mcp, stateless Streamable HTTP JSON-RPC. Получите schema_get перед document_write. Подключаемый клиент должен поддерживать настройку Bearer-заголовка; OAuth discovery пока не предоставляется.</p><p>Экспорт: /api/export, /api/articles/:id/export и ?format=ttl. JSON Schema: /schema.json; SHACL: /schema.shacl.ttl.</p><a href="/">Вернуться к словарю</a></body></html>'));
 app.get('/vocabulary',async(c)=>{const schema=(await new Service(new Store(c.env.DB),null).readSchema()).schema;return c.json({'@context':namespaces,'@graph':schema.fields.filter((f)=>f.predicate.includes('/vocabulary#')).map((f)=>({'@id':f.predicate,'@type':namespaces.rdf+'Property',[namespaces.rdfs+'label']:f.label,[namespaces.rdfs+'comment']:f.description}))});});
 app.get('/',async(c)=>articleHtml(c.env,c.req.raw,await new Service(new Store(c.env.DB),null).list()));

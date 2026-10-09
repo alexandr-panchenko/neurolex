@@ -27,6 +27,8 @@ bun run preview
 
 `check` runs strict TypeScript, zero-warning ESLint, meaningful domain/HTTP/semantic tests, Vite build and a Worker dry run. `preview` serves the Worker with local D1 and built assets. Local secure cookies require an HTTPS local preview for browser author login. `dev` is the Vite UI server; its API must be supplied by the Worker. `cf:login` is user-operated in an external terminal/browser. `deploy:preview` checks and deploys the test site; remote migrations are applied separately.
 
+Read the [user guide](docs/USER-GUIDE.md) or [Russian website help](https://neurolex-preview.sanocks.workers.dev/help) for card entry, autosave, topics, history, imports, publication and feedback.
+
 See [integration](docs/INTEGRATION.md), [semantic profile](docs/SEMANTIC-PROFILE.md), [operations](docs/OPERATIONS.md), and [current plan](IMPLEMENTATION-PLAN.md). Embedded OpenAI/Gemini tool-using chat and Parallel Search are implemented with bounded server-side calls; live provider keys/model IDs are not yet configured. External-agent HTTP/MCP use requires no LLM key in this application.
 
 Article drafts autosave after a short pause and flush on navigation, reconnect and page hide. Only valid documents reach the server; incomplete/failed edits retain a local copy. Server conflicts stop automatic replacement and show an inline message. A local copy from a different base revision requires an explicit inline recovery action, not a browser confirmation. Publication and schema/import application remain explicit operations. Native alert/confirm/prompt dialogs are absent from the UI.

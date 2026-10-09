@@ -93,3 +93,11 @@ Added authenticated NeuroLex/InterLex proposal endpoint and browser source selec
 35 tests / 144 assertions, types, lint and Worker build passed. Test deployment: 0bd8c1a5-39a6-4b4c-a0c8-bdff63766c10. This is a targeted historic NeuroLex/NIFSTD module import with explicit InterLex mappings, not a complete/current InterLex database or full original field-model reproduction.
 
 Final adapter deployment with concise source attribution: 79128a0f-1057-4f30-99f8-32b4877dbb48. Live JSON-LD/Turtle equality and SHACL passed for all three published articles. Browser verified InterLex lookup, existing-record preview, imported English editor language and the persisted private article; screenshot docs/neurolex-import.jpg. No source definition was fabricated or publicly published.
+
+## Accessible user guide — 9 October 2026
+
+Added a public Russian `/help` page with fifteen task-oriented sections, a compact contents disclosure, direct section anchors, quick links, a CSV example and links to integration/semantic documentation. It covers first-card entry, field meanings, autosave/recovery, topics and inline links, publication/history, CSV/JSON/external imports, global schema, assistant permissions, external agents and feedback. Help is rendered as readable HTML without JavaScript or authentication, with responsive editorial typography and a keyboard skip link. A visible header link opens help separately so an article editor stays open.
+
+English repository instructions are generated as docs/USER-GUIDE.md from the same bilingual src/content/help.ts content. The standard check fails if the generated copy is out of date. README links both entry points. No development/infrastructure notices were added to the product. Local checks: 35 tests / 144 assertions, types, zero-warning lint, documentation consistency and real Worker build passed. Deployment/browser/CI evidence follows.
+
+User-guide deployment: fea85534-b65d-4c09-a2f1-efda03f52bd3. Browser verified all fifteen sections, expandable contents, quick-link navigation and valid internal anchors. Narrow viewport 390 (375 px content area) had no horizontal overflow, including the CSV section; temporary viewport reset. Screenshot: docs/user-guide.jpg. The guide is public and independent of author sign-in/provider configuration.
