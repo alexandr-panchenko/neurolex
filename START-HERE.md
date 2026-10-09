@@ -1,0 +1,17 @@
+# Implement the NeuroLex project
+
+Work in the user's local development environment on Arch Linux. Read `PROJECT-HANDOFF.md` and `methodology/start-or-resume.md`, inspect the target repository and its `AGENTS.md`, then read only the methodology documents relevant to the current step. The handoff contains the product decisions already made; do not restart discovery or ask the user to supply sample cards.
+
+Build a working, small lexicographic wiki with public search, structured articles, an authorized authoring interface, and an authenticated agent interface for editing both articles and their schema. Use TypeScript, React, ProseMirror, Hono, Bun development tooling, and Cloudflare Workers. Preserve compatibility with OntoLex-Lemon, Lexicog, RDF, and JSON-LD.
+
+First inspect the existing Cloudflare tooling and available account connection. The user reports it is already installed and configured locally; verify this rather than reinstalling or assuming authentication. If login is missing, complete useful independent preparation and request the specific interactive authentication step. Never print secrets. Try Cloudflare Artifacts if the account has access and a bounded experiment succeeds. Artifacts is an optional experiment, not a release dependency; otherwise use straightforward document persistence with revisions.
+
+Copy these project decisions and the included methodology into appropriate repository locations. Establish reproducible commands and quality checks, a short operational `AGENTS.md`, and a current implementation plan. Preserve any existing compatible repository conventions. All repository documentation and commit messages must be in English; communicate with the user in Russian.
+
+Produce a restrained wiki-style interactive UI with realistic sample articles, public reading and authoring states. Follow the methodology's concrete UI review point: present a usable mock or working initial slice for feedback before committing to extensive dependent UI work. Continue independent domain, persistence, API, schema, and verification work within the assignment. A missing image reference is not a reason to wait: use the agreed wiki metaphor and record the chosen visual baseline.
+
+Carry implementation through the plan's review points to a working application. Prioritize external-agent use: the core must work without an LLM API key. Gemini or OpenAI and Parallel can be connected when credentials are available. Never freeze the article schema into LLM prompts or tool definitions: obtain the current versioned schema and validate every write against it. Do not add ML Colab Codec, OT, or CRDT unless a demonstrated requirement for simultaneous editing emerges.
+
+At each meaningful delivery, provide the URL or local command, the exact scenario the user can try, verification results, and remaining real dependencies. Distinguish implemented, fixture-tested, live-tested, and deployed behavior. Do not stop at a plan or scaffold. Do not claim that login, deployment, Artifacts, imported data, or live model calls worked without testing them.
+
+The package includes nine methodology documents, unchanged in content. Three optional `ui-techniques/` guides mentioned by the original methodology were not attached; they are not mandatory prerequisites and must not be invented. Repository identity, final public name/domain, and publication permissions must be established from the local environment and user instructions rather than guessed.

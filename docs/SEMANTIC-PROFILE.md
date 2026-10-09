@@ -1,0 +1,15 @@
+# Supported semantic profile
+
+This project uses a small documented profile of [OntoLex-Lemon](https://www.w3.org/2016/04/ontolex/) and [Lexicog](https://www.w3.org/2019/09/lexicog/), both community specifications. It is not a reproduction of the original NeuroLex/InterLex field model. No InterLex collection has been imported or reuse permission inferred.
+
+Each article has a stable slug-based `lexicog:Entry`, a `skos:Concept`, English and Russian `ontolex:LexicalEntry` resources, canonical `ontolex:Form` resources, and `ontolex:LexicalSense` resources referencing the concept. A `lexicog:LexicographicResource` groups entries. An English abbreviation is an additional form. This initial model has one concept per article; cross-article shared concepts and additional lexical senses are future extensions, not inferred from different podcast wording.
+
+Definitions map to `skos:definition`, related concepts to `skos:related`, and source metadata to appropriate DCT properties. Researcher commentary, example evidence/status, timestamps and discourse classifications use explicitly published project properties. Exact, close and related external mappings remain distinct; labels alone do not imply identity. Source groups with explicit IDs retain their RDF identity across reordering. Other anonymous repeat groups currently have positional article-local identifiers; these should not be treated as reusable episode/entity identifiers.
+
+Field configuration generates JSON Schema and SHACL within the supported set: text, rich text, number, boolean, date, enum, reference, repeated/nested objects. Runtime validation uses a Workers-compatible recursive validator, plus ProseMirror structural checks, safe links, citation-target checks and evidence constraints. JSON Schema is the portable shape contract; it does not express every editorial invariant. SHACL verifies graph structure and supported datatype/cardinality/enum constraints, not arbitrary JSON Schema features or all provenance rules. OWL reasoning is not used as validation.
+
+ProseMirror JSON is the authoritative rich-text representation. Public HTML preserves supported paragraphs, headings, lists, quotations, emphasis, HTTP links, term references and source references. RDF exports carry plain textual values with language tags; formatting/citation marks remain lossless in the application's JSON bundle. Excerpts use their supplied language; researcher text defaults to Russian. Images are outside this profile and rejected.
+
+Endpoints: `/context/1.jsonld`, `/vocabulary`, `/schema.json`, `/schema.shacl.ttl`, `/api/articles/:id/export`, and `?format=ttl`. Semantic article/concept/entry/form/sense IDs redirect to their article. Published exports exclude drafts. JSON-LD and Turtle were parsed and compared as RDF graphs, then validated using generated SHACL; removing a required lexical form fails validation.
+
+The three illustrative definitions are sourced paraphrases. Synthetic usage examples are explicitly marked and must not be treated as podcast quotations. No corpus license is invented. Export of the application's state is not permission to republish third-party content.

@@ -1,0 +1,11 @@
+CREATE TABLE control (id INTEGER PRIMARY KEY CHECK(id=1), revision INTEGER NOT NULL);
+INSERT INTO control VALUES (1,0);
+CREATE TABLE write_guard (id INTEGER PRIMARY KEY CHECK(id=1), expected INTEGER NOT NULL);
+CREATE TRIGGER assert_corpus_revision BEFORE INSERT ON write_guard
+WHEN NEW.expected != (SELECT revision FROM control WHERE id=1)
+BEGIN SELECT RAISE(ABORT, 'CORPUS_CONFLICT'); END;
+CREATE TABLE schemas (version INTEGER PRIMARY KEY, body TEXT NOT NULL, actor TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE articles (id TEXT PRIMARY KEY, body TEXT NOT NULL);
+CREATE TABLE revisions (article_id TEXT NOT NULL, revision INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY(article_id,revision));
+CREATE TABLE credentials (id TEXT PRIMARY KEY, hash TEXT NOT NULL UNIQUE, actor TEXT NOT NULL, scopes TEXT NOT NULL, expires_at TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE receipts (actor TEXT NOT NULL, key TEXT NOT NULL, request_hash TEXT NOT NULL, body TEXT NOT NULL, PRIMARY KEY(actor,key));

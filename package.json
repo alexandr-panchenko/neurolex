@@ -1,0 +1,56 @@
+{
+  "name": "neurolex",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "bun test",
+    "build": "vite build && wrangler deploy --dry-run --outdir dist/worker",
+    "check": "bun run typecheck && bun run lint && bun run test && bun run build",
+    "preview": "wrangler dev",
+    "deploy:preview": "bun run check && wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261009.1",
+    "@rdfjs/dataset": "2.0.3",
+    "@types/bun": "1.4.2",
+    "@types/jsonld": "1.5.15",
+    "@types/n3": "1.26.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "rdf-validate-shacl": "0.6.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1",
+    "vite": "8.3.4",
+    "wrangler": "4.149.0"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "hono": "4.13.13",
+    "jose": "6.2.12",
+    "jsonld": "9.0.0",
+    "n3": "2.13.11",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-history": "1.5.1",
+    "prosemirror-keymap": "1.2.3",
+    "prosemirror-model": "1.25.12",
+    "prosemirror-schema-basic": "1.2.5",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-view": "1.42.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}
