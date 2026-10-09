@@ -45,6 +45,8 @@ Signed-in authors also see drafts. Visitors see published articles and their pub
 
 ## Signing in and permissions
 
+The owner opens “Доступ пользователей и агентов”, selects Author, enters a name or email and creates a personal key with read and draft-write permissions. Publication is optional. Deliver the key privately; it expires after 30 days and can be revoked by the owner.
+
 Select “Вход автора” (Author sign-in). Enter a personal key if one has been issued to you. Email sign-in is used when configured by the site owner. Signing in with an arbitrary email does not grant editing rights.
 
 Actions depend on assigned permissions: reading drafts, changing articles, publishing and changing the global schema are separate permissions. If an action is missing, ask the owner for the appropriate access. Never include your personal key in feedback.
@@ -187,7 +189,7 @@ The supported profile has one English/Russian entry pair and one concept per art
 
 ## Connecting an external agent
 
-The owner opens Agent access and assigns a name and permissions. read allows drafts/history, write allows draft changes, publish allows publication, and schema allows global schema changes. Grant only necessary permissions.
+The owner opens User and agent access and selects External agent and assigns a name and permissions. read allows drafts/history, write allows draft changes, publish allows publication, and schema allows global schema changes. Grant only necessary permissions.
 
 A new key is displayed once, lasts 30 days and can be revoked. Store it in the client secret settings. Agents use HTTP or MCP and obtain the active schema and article revision before writing.
 

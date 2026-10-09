@@ -36,3 +36,11 @@ export async function accessLogin(c: Context<{ Bindings: Env }>) {
   catch { throw new DomainError('FORBIDDEN',403,'Access JWT или адрес автора не подтверждён.'); }
   await authorSession(c); return c.redirect('/');
 }
+
+export async function personalLogin(c: Context<{ Bindings: Env }>, key: string) {
+  if (c.env.AUTHOR_KEY_HASH && await digest(key) === c.env.AUTHOR_KEY_HASH) return authorSession(c);
+  const row = await c.env.DB.prepare('SELECT actor,scopes,expires_at,revoked FROM credentials WHERE hash=?').bind(await digest(key)).first<{actor:string;scopes:string;expires_at:string;revoked:number}>();
+  if (!row || !row.actor.startsWith('author:invited:') || row.revoked || Date.parse(row.expires_at)<=Date.now()) throw new DomainError('UNAUTHENTICATED',401,'Неверный или истёкший персональный ключ.');
+  setCookie(c,'__Host-neurolex-session',key,{httpOnly:true,secure:true,sameSite:'Strict',path:'/',maxAge:Math.min(8*3600,Math.floor((Date.parse(row.expires_at)-Date.now())/1000))});
+  return {actor:row.actor,scopes:JSON.parse(row.scopes) as string[]};
+}

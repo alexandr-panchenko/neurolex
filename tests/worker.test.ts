@@ -30,3 +30,23 @@ test('delegated credentials expire and revoke; write-only agent cannot publish',
 test('public HTML has readable article text without executing JavaScript',async()=>{
  const env=await environment();const response=await app.request('/article/neurofeedback',{},env);const html=await response.text();expect(response.status).toBe(200);expect(html).toContain('Метод обучения саморегуляции');expect(html).toContain('DefinedTerm');expect(html).not.toContain('owner@example.test');
 });
+test('invited author uses a personal browser key without owner privileges; logout retains invitation and owner revocation ends access',async()=>{
+ const env=await environment();const owner=await issueCredential(env,'owner',['read','credentials'],3600);
+ const created=await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'writer@example.test',scopes:['read','write']})},env);
+ expect(created.status).toBe(201);const key=await created.json() as {id:string;token:string};
+ const login=await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env);expect(login.status).toBe(200);
+ const cookie=login.headers.get('set-cookie')!.split(';')[0]!;const headers={Cookie:cookie};
+ const session=await (await app.request('/api/session',{headers},env)).json() as {actor:{id:string;scopes:string[];origin:string}};
+ expect(session.actor.id).toBe('author:invited:writer@example.test');expect(session.actor.origin).toBe('browser');expect(session.actor.scopes).toEqual(['read','write']);
+ expect((await app.request('/api/credentials',{headers},env)).status).toBe(403);
+ expect((await app.request('/api/schema/apply',{method:'POST',headers,body:'{}'},env)).status).toBe(403);
+ const read=await app.request('/api/articles/neurofeedback?private=1',{headers},env);const record=await read.json() as {current:unknown;revision:number};
+ expect((await app.request('/api/write',{method:'POST',headers,body:JSON.stringify({document:record.current,expectedRevision:record.revision,schemaVersion:1,publish:true})},env)).status).toBe(403);
+ expect((await app.request('/api/write',{method:'POST',headers,body:JSON.stringify({document:record.current,expectedRevision:record.revision,schemaVersion:1,publish:false})},env)).status).toBe(200);
+ expect((await app.request('/auth/logout',{method:'POST',headers},env)).status).toBe(200);
+ expect((await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env)).status).toBe(200);
+ await app.request('/api/credentials/'+key.id,{method:'DELETE',headers:{Authorization:'Bearer '+owner.token}},env);
+ expect((await app.request('/api/articles?private=1',{headers},env)).status).toBe(401);
+ expect((await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env)).status).toBe(401);
+ expect((await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'writer',scopes:['read','schema']})},env)).status).toBe(422);
+});
