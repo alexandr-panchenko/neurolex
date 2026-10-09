@@ -31,7 +31,7 @@ test('public HTML has readable article text without executing JavaScript',async(
  const env=await environment();const response=await app.request('/article/neurofeedback',{},env);const html=await response.text();expect(response.status).toBe(200);expect(html).toContain('Метод обучения саморегуляции');expect(html).toContain('DefinedTerm');expect(html).not.toContain('owner@example.test');
 });
 test('invited author uses a personal browser key without owner privileges; logout retains invitation and owner revocation ends access',async()=>{
- const env=await environment();const owner=await issueCredential(env,'owner',['read','credentials'],3600);
+ const env=await environment();const owner=await issueCredential(env,'owner',['read','write','credentials'],3600);
  const created=await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'writer@example.test',scopes:['read','write']})},env);
  expect(created.status).toBe(201);const key=await created.json() as {id:string;token:string};
  const login=await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env);expect(login.status).toBe(200);
@@ -48,5 +48,18 @@ test('invited author uses a personal browser key without owner privileges; logou
  await app.request('/api/credentials/'+key.id,{method:'DELETE',headers:{Authorization:'Bearer '+owner.token}},env);
  expect((await app.request('/api/articles?private=1',{headers},env)).status).toBe(401);
  expect((await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env)).status).toBe(401);
- expect((await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'writer',scopes:['read','schema']})},env)).status).toBe(422);
+ expect((await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'writer',scopes:['write']})},env)).status).toBe(422);
+});
+
+test('fully authorized invited author can manage schema and issue keys; logout preserves the personal key',async()=>{
+ const env=await environment();const scopes=['read','write','publish','schema','credentials'];const owner=await issueCredential(env,'owner',scopes,3600);
+ const response=await app.request('/api/credentials',{method:'POST',headers:{Authorization:'Bearer '+owner.token},body:JSON.stringify({kind:'author',name:'full-author',scopes})},env);
+ expect(response.status).toBe(201);const key=await response.json() as {token:string};
+ const login=await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env);expect(login.status).toBe(200);const headers={Cookie:login.headers.get('set-cookie')!.split(';')[0]!};
+ const session=await (await app.request('/api/session',{headers},env)).json() as {actor:{scopes:string[]}};expect(session.actor.scopes).toEqual(scopes);
+ expect((await app.request('/api/credentials',{headers},env)).status).toBe(200);
+ expect((await app.request('/api/schema/preview',{method:'POST',headers,body:'{}'},env)).status).not.toBe(403);
+ expect((await app.request('/api/credentials',{method:'POST',headers,body:JSON.stringify({kind:'author',name:'next-author',scopes})},env)).status).toBe(201);
+ await app.request('/auth/logout',{method:'POST',headers},env);
+ expect((await app.request('/auth/session',{method:'POST',body:JSON.stringify({key:key.token})},env)).status).toBe(200);
 });

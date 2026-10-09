@@ -45,7 +45,7 @@ Signed-in authors also see drafts. Visitors see published articles and their pub
 
 ## Signing in and permissions
 
-The owner opens “Доступ пользователей и агентов”, selects Author, enters a name or email and creates a personal key with read and draft-write permissions. Publication is optional. Deliver the key privately; it expires after 30 days and can be revoked by the owner.
+The owner opens “Доступ пользователей и агентов”, selects Author, enters a name or email and creates a personal key with full access to articles, publication, schema, assistant and credential management. Individual permissions can also be selected. Deliver the key privately; it expires after 30 days and can be revoked by the owner.
 
 Select “Вход автора” (Author sign-in). Enter a personal key if one has been issued to you. Email sign-in is used when configured by the site owner. Signing in with an arbitrary email does not grant editing rights.
 
